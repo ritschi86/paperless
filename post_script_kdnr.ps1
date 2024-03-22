@@ -2,7 +2,7 @@ param ($doc_id)
 
 $auth_token = "xxxxxx"
 $content_type = "application/json"
-$base_url = "https://dms.richert.family"
+$base_url = "https://base.url"
 $api_documents = $base_url+"/api/documents/"
 
 #Define Auth Header
