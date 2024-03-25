@@ -5,6 +5,7 @@ import json
 import re
 
 #Define Variables
+#ACHTUNG HIER ANPASSEN
 auth_token = "APITOKEN"
 url_base = "https://paperless.local"
 custom_field_nr = "8"
