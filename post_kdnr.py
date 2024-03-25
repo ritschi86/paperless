@@ -48,5 +48,5 @@ def paperless_send(doc):
     })
     httpx.patch(api_url, headers=auth_header, json=custom_kdnr)
 
-#doc = os.environ.get('DOCUMENT_ID')
+doc = os.environ.get('DOCUMENT_ID')
 paperless_send(doc)
