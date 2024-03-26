@@ -25,7 +25,6 @@ def paperless_send(doc):
     api_url = url_api_doc + doc + "/"
     #Debug API URL
     print(api_url)
-        # Send POST request with FORM data using the data parameter
     response = httpx.get(api_url, headers=auth_header)
 
     result = response.json()
@@ -34,19 +33,22 @@ def paperless_send(doc):
     print(result["id"])
 
     json_lookahead = re.search("(?<=Kundennummer)(.*)",result["content"])
-    post_custom_kdnr = json_lookahead.group(0)
-    post_custom_kdnr = re.sub("[^a-zA-Z0-9]","",post_custom_kdnr)
+    if not json_lookahead:
+        print("Keinen passenden RegEx Kundennummer gefunden.")
+    else:
+        post_custom_kdnr = json_lookahead.group(0)
+        post_custom_kdnr = re.sub("[^a-zA-Z0-9]","",post_custom_kdnr)
 
 
-    custom_kdnr = ({
-        "custom_fields": [
-            {
-                "value": post_custom_kdnr,
-                "field": custom_field_nr
-            }
-        ]
-    })
-    httpx.patch(api_url, headers=auth_header, json=custom_kdnr)
+        custom_kdnr = ({
+            "custom_fields": [
+                {
+                    "value": post_custom_kdnr,
+                    "field": custom_field_nr
+                }
+            ]
+        })
+        httpx.patch(api_url, headers=auth_header, json=custom_kdnr)
 
 doc = os.environ.get('DOCUMENT_ID')
 paperless_send(doc)
