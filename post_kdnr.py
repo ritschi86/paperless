@@ -8,7 +8,7 @@ import re
 #ACHTUNG HIER ANPASSEN
 auth_token = "APITOKEN"
 url_base = "https://paperless.local"
-custom_field_nr = "8"
+custom_field_nr = "8" #/api/custom_fields/
 
 
 def paperless_send(doc):
