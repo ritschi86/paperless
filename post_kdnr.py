@@ -5,10 +5,16 @@ import json
 import re
 
 #Define Variables
-#ACHTUNG HIER ANPASSEN
-auth_token = "APITOKEN"
+auth_token = "xxxxxxxxxxx"
 url_base = "https://paperless.local"
-custom_field_nr = "8" #/api/custom_fields/
+custom_field_nr = "8"
+
+search_pattern = ["Kundennummer",
+                  "Kunden-Nr",
+                  "Kd.Nr",
+                  "Mitglieds-Nr",
+                  "Unser Zeichen"
+                ]
 
 
 def paperless_send(doc):
@@ -22,34 +28,36 @@ def paperless_send(doc):
 
     #Debug Auth Header
     print(auth_header)
-
     api_url = url_api_doc + doc + "/"
     #Debug API URL
     print(api_url)
     response = httpx.get(api_url, headers=auth_header)
-
     result = response.json()
 
     #Debug Doc ID
     print(result["id"])
 
-    json_lookahead = re.search("(?<=Kundennummer)(.*)",result["content"])
-    if not json_lookahead:
-        print("Keinen passenden RegEx Kundennummer gefunden.")
-    else:
-        post_custom_kdnr = json_lookahead.group(0)
-        post_custom_kdnr = re.sub("[^a-zA-Z0-9]","",post_custom_kdnr)
+    def adding_cf():
+        custom_fields = result["custom_fields"]
+        add_custom_field = {"value":post_custom_kdnr, "field":custom_field_nr}
+        custom_fields.append(add_custom_field)
+        print(custom_fields)
 
-
-        custom_kdnr = ({
-            "custom_fields": [
-                {
-                    "value": post_custom_kdnr,
-                    "field": custom_field_nr
-                }
-            ]
-        })
-        httpx.patch(api_url, headers=auth_header, json=custom_kdnr)
+        post_custom_fields = ({
+                    "custom_fields": custom_fields
+                })
+        httpx.patch(api_url, headers=auth_header, json=post_custom_fields)
+    for search_word in search_pattern:
+        try:
+            print(f"Suchwort: {search_word}")
+            json_lookahead = re.search(f"(?<={search_word})(.*)",result["content"])
+            post_custom_kdnr = json_lookahead.group(0)
+            post_custom_kdnr = re.sub("[^a-zA-Z0-9]","",post_custom_kdnr)
+            # modify the custom fields
+            adding_cf()
+        except:
+            print(f"Keinen Treffer für {search_word}")
+    
 
 doc = os.environ.get('DOCUMENT_ID')
 paperless_send(doc)
